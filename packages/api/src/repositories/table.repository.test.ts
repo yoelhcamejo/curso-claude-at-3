@@ -77,4 +77,25 @@ describe('SqliteTableRepository (Integration)', () => {
         await repo.delete('t1')
         expect(await repo.findById('t1')).toBeNull()
     })
+
+    describe('findAvailable', () => {
+        it('should return only free tables with enough capacity ordered by capacity and number', async () => {
+            await repo.save(buildTable({ id: 'small', number: 1, capacity: 2 }))
+            await repo.save(buildTable({ id: 'big-b', number: 5, capacity: 6 }))
+            await repo.save(buildTable({ id: 'big-a', number: 4, capacity: 6 }))
+            await repo.save(buildTable({ id: 'mid', number: 9, capacity: 4 }))
+            await repo.save(buildTable({ id: 'exact', number: 8, capacity: 3 }))
+            await repo.save(buildTable({ id: 'busy', number: 2, capacity: 8, status: 'ocupada' }))
+            await repo.save(buildTable({ id: 'booked', number: 3, capacity: 8, status: 'reservada' }))
+            await repo.save(buildTable({ id: 'other', restaurantId: 'r2', number: 1, capacity: 10 }))
+
+            const tables = await repo.findAvailable('r1', 3)
+            expect(tables.map(t => t.id)).toEqual(['exact', 'mid', 'big-a', 'big-b'])
+        })
+
+        it('should return an empty array when no table is big enough', async () => {
+            await repo.save(buildTable({ capacity: 2 }))
+            expect(await repo.findAvailable('r1', 100)).toEqual([])
+        })
+    })
 })

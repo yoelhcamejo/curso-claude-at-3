@@ -18,6 +18,7 @@ const SELECT_TABLE = 'SELECT id, restaurant_id as restaurantId, number, descript
 export interface TableRepository {
     findById(id: string): Promise<Table | null>
     findByRestaurantId(restaurantId: string): Promise<Table[]>
+    findAvailable(restaurantId: string, people: number): Promise<Table[]>
     save(table: Table): Promise<void>
     delete(id: string): Promise<void>
 }
@@ -33,6 +34,14 @@ export class SqliteTableRepository implements TableRepository {
 
     async findByRestaurantId(restaurantId: string): Promise<Table[]> {
         const rows = await this.db.all<TableRow>(`${SELECT_TABLE} WHERE restaurant_id = ? ORDER BY number ASC`, [restaurantId])
+        return rows.map(row => this.mapToTable(row))
+    }
+
+    async findAvailable(restaurantId: string, people: number): Promise<Table[]> {
+        const rows = await this.db.all<TableRow>(
+            `${SELECT_TABLE} WHERE restaurant_id = ? AND status = 'libre' AND capacity >= ? ORDER BY capacity ASC, number ASC`,
+            [restaurantId, people]
+        )
         return rows.map(row => this.mapToTable(row))
     }
 
