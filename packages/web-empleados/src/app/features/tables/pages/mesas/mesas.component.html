@@ -14,6 +14,10 @@
   <div class="alert-error">{{ tableStore.actionError() }}</div>
 }
 
+@if (orderStore.error()) {
+  <div class="alert-error">{{ orderStore.error() }}</div>
+}
+
 @if (!tableStore.loading() || tableStore.tables().length > 0) {
   @if (tableStore.tables().length === 0) {
     <div class="empty-state">
@@ -34,6 +38,24 @@
             }
             <p class="table-capacity">{{ table.capacity }} {{ table.capacity === 1 ? 'persona' : 'personas' }}</p>
           </div>
+
+          @if (table.status === 'ocupada') {
+            <div class="table-orders">
+              @for (order of ordersFor(table); track order.id) {
+                <div class="order-block">
+                  <span class="order-id">Pedido #{{ order.id.substring(0, 8) }}</span>
+                  @for (item of order.items; track item.id) {
+                    <div class="order-item">
+                      <span class="item-name">{{ item.quantity }}x {{ item.dishName || 'Producto' }}</span>
+                      <span [class]="'badge badge-' + item.status">{{ item.status }}</span>
+                    </div>
+                  }
+                </div>
+              } @empty {
+                <p class="no-orders">Sin pedidos activos</p>
+              }
+            </div>
+          }
 
           <div class="table-footer">
             @if (canChangeStatus()) {
