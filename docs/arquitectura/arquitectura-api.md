@@ -51,7 +51,7 @@ contexts/employee/
 
 `contexts/shared/` no es un bounded context de negocio: contiene el value object `Email` y los middlewares y el `errorHandler` de Express.
 
-### 2. Por capas → `restaurant`, `dish`, `ingredient`, `order`
+### 2. Por capas → `restaurant`, `dish`, `ingredient`, `order`, `table`
 
 El resto de dominios **no** usan bounded contexts. Se organizan en carpetas transversales por tipo de fichero:
 
@@ -272,6 +272,7 @@ Todos cuelgan de `/api/v1`. La columna **Roles** indica qué valores de `req.use
 | `GET` | `/api/v1/public/restaurants` | Listado de restaurantes para la app de clientes |
 | `GET` | `/api/v1/public/restaurants/:id` | Detalle de restaurante |
 | `GET` | `/api/v1/public/restaurants/:restaurantId/dishes` | Carta pública del restaurante |
+| `GET` | `/api/v1/public/restaurants/:restaurantId/tables/available?people=N` | Mesas `libre` con `capacity >= N` (ordenadas por capacidad y número). `people` debe ser un entero ≥ 1 (400 si no) |
 
 ### Restaurantes
 
@@ -310,6 +311,22 @@ Todos cuelgan de `/api/v1`. La columna **Roles** indica qué valores de `req.use
 
 Los ingredientes son **más restrictivos** que los platos: solo `admin` puede crear, editar o borrar.
 
+### Mesas
+
+El contrato completo (cuerpos, respuestas y errores) está en [`docs/api/openapi.yml`](../api/openapi.yml).
+
+| Método | Ruta | Roles |
+| --- | --- | --- |
+| `GET` | `/api/v1/restaurants/:restaurantId/tables` | admin, manager, camarero, cocinero |
+| `GET` | `/api/v1/restaurants/:restaurantId/tables/:id` | admin, manager, camarero, cocinero |
+| `POST` | `/api/v1/restaurants/:restaurantId/tables` | admin |
+| `PUT` | `/api/v1/restaurants/:restaurantId/tables/:id` | admin |
+| `DELETE` | `/api/v1/restaurants/:restaurantId/tables/:id` | admin — 409 si la mesa está `ocupada` |
+| `PATCH` | `/api/v1/restaurants/:restaurantId/tables/:id/status` | admin, manager, camarero |
+| `POST` | `/api/v1/restaurants/:restaurantId/tables/:id/occupy` | cliente — 409 si la mesa no está `libre` |
+
+Las operaciones sobre una mesa concreta responden 404 si la mesa no existe **o pertenece a otro restaurante**. Los conflictos (número de mesa repetido, mesa no disponible, borrar una mesa ocupada) responden **409**: es el único dominio que usa ese código, con la lista `CONFLICT_ERRORS` del `errorHandler`.
+
 ### Pedidos
 
 | Método | Ruta | Roles |
@@ -345,7 +362,8 @@ Ambos responden directamente, sin pasar por el `errorHandler`.
 
 Jerarquía: `Error` → `AppError` (abstracta) → errores específicos en `errors/DomainErrors.ts`. `AppError` asigna `this.name = this.constructor.name`, y el `errorHandler` decide el código HTTP a partir de ese nombre:
 
-- **404**: `EmployeeNotFoundError`, `RestaurantNotFoundError`, `IngredientNotFoundError`, `DishNotFoundError`
+- **404**: `EmployeeNotFoundError`, `RestaurantNotFoundError`, `IngredientNotFoundError`, `DishNotFoundError`, `TableNotFoundError`
+- **409** (`CONFLICT_ERRORS`): `TableNotAvailableError`, `DuplicatedTableNumberError`, `TableOccupiedError`
 - **401**: `InvalidCredentialsError`
 - **400**: cualquier otro `AppError`
 - **500**: errores no controlados
