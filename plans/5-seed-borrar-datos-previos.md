@@ -42,7 +42,7 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 
 - [x] 1. Test (rojo): en `clearDatabase.test.ts`, inicializar un `Database` en memoria, insertar un restaurante, un empleado, un ingrediente, un plato con su `dish_ingredients`, un pedido y un `order_item`, llamar a `clearDatabase` y comprobar que `SELECT COUNT(*)` es 0 en las 7 tablas.
 - [x] 2. Implementar `clearDatabase.ts` (verde): `BEGIN`, `DELETE FROM` de cada tabla en orden hijo → padre (`order_items`, `orders`, `dish_ingredients`, `dishes`, `ingredients`, `employees`, `restaurants`), `COMMIT`, y `ROLLBACK` + relanzar el error si algo falla.
-- [ ] 3. Test: comprobar que la lista de tablas de `clearDatabase` incluye todas las tablas de usuario de `sqlite_master` (excluyendo `sqlite_%`), para que el test falle si se añade una tabla nueva y no se incluye. Exportar la lista (p. ej. `TABLES_IN_DELETE_ORDER`) si hace falta.
+- [x] 3. Test: comprobar que la lista de tablas de `clearDatabase` incluye todas las tablas de usuario de `sqlite_master` (excluyendo `sqlite_%`), para que el test falle si se añade una tabla nueva y no se incluye. Exportar la lista (p. ej. `TABLES_IN_DELETE_ORDER`) si hace falta.
 - [ ] 4. Test: con la base de datos vacía, `clearDatabase` no lanza error (el seed sobre una BD nueva debe funcionar).
 - [ ] 5. Modificar `seed.ts`: importar `clearDatabase` y llamarlo justo después de `dbConfig.initialize()`, con un `console.log('Database cleared.')`.
 - [ ] 6. Simplificar en `seed.ts` la creación del admin y de los empleados: quitar los `findByEmail` y las ramas "already exists", ya que la tabla siempre está vacía.

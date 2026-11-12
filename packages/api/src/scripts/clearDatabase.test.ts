@@ -1,6 +1,6 @@
 import { Database } from '@config/database.js'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { clearDatabase } from './clearDatabase.js'
+import { clearDatabase, TABLES_IN_DELETE_ORDER } from './clearDatabase.js'
 
 const now = () => new Date().toISOString()
 
@@ -66,5 +66,14 @@ describe('clearDatabase', () => {
         for (const table of tables) {
             expect(await countRows(db, table), `${table} después de borrar`).toBe(0)
         }
+    })
+
+    it('incluye en el borrado todas las tablas del esquema', async () => {
+        const rows = await db.all<{ name: string }>(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
+        )
+        const schemaTables = rows.map(r => r.name).sort()
+
+        expect([...TABLES_IN_DELETE_ORDER].sort()).toEqual(schemaTables)
     })
 })
