@@ -12,6 +12,8 @@ erDiagram
     restaurants ||--o{ ingredients : "tiene"
     restaurants ||--o{ dishes : "tiene"
     restaurants ||--o{ orders : "tiene"
+    restaurants ||--o{ restaurant_tables : "tiene"
+    restaurant_tables ||--o{ orders : "se sirve en (table_id, sin FK)"
     dishes ||--o{ dish_ingredients : "contiene"
     ingredients ||--o{ dish_ingredients : "usado en"
     orders ||--o{ order_items : "contiene"
@@ -66,6 +68,17 @@ erDiagram
         TEXT dish_id PK_FK
         TEXT ingredient_id PK_FK
         REAL quantity
+    }
+
+    restaurant_tables {
+        TEXT id PK
+        TEXT restaurant_id FK
+        INTEGER number
+        TEXT description
+        INTEGER capacity
+        TEXT status
+        TEXT created_at
+        TEXT updated_at
     }
 
     orders {
@@ -182,6 +195,28 @@ Relación muchos-a-muchos entre platos e ingredientes.
 
 ---
 
+### `restaurant_tables`
+
+Mesas de cada restaurante. La tabla se llama `restaurant_tables` (y no `tables`) para no confundirla con "tabla" de base de datos.
+
+| Columna | Tipo | Nullable | Descripción |
+| --- | --- | --- | --- |
+| `id` | TEXT | No | UUID, clave primaria |
+| `restaurant_id` | TEXT | No | FK → `restaurants.id` |
+| `number` | INTEGER | No | Número de la mesa, entero ≥ 1, único dentro del restaurante |
+| `description` | TEXT | No | Descripción libre (p. ej. "Terraza"); cadena vacía si no se indica |
+| `capacity` | INTEGER | No | Nº máximo de personas, entero ≥ 1 |
+| `status` | TEXT | No | Estado: libre, ocupada, reservada (default: libre) |
+| `created_at` | TEXT | No | Fecha de creación |
+| `updated_at` | TEXT | No | Fecha de última actualización |
+
+**Restricciones:**
+
+- `UNIQUE(restaurant_id, number)`: no puede haber dos mesas con el mismo número en un restaurante.
+- Una mesa pasa a `ocupada` cuando un cliente la elige (solo si está `libre`, con un `UPDATE` condicional para que dos clientes no la ocupen a la vez). Vuelve a `libre` solo cuando la cambia a mano un empleado o el admin.
+
+---
+
 ### `orders`
 
 Pedidos de los clientes.
@@ -190,7 +225,7 @@ Pedidos de los clientes.
 | --- | --- | --- | --- |
 | `id` | TEXT | No | UUID, clave primaria |
 | `restaurant_id` | TEXT | No | FK → `restaurants.id` |
-| `table_id` | TEXT | Sí | Identificador de mesa (opcional) |
+| `table_id` | TEXT | Sí | `id` de la mesa (`restaurant_tables.id`) en la que se sirve el pedido. Sin clave foránea (ver nota) |
 | `client_id` | TEXT | Sí | ID del cliente (opcional) |
 | `created_at` | TEXT | No | Fecha de creación |
 
@@ -223,6 +258,8 @@ Líneas de pedido. Cada ítem es un plato con cantidad y estado.
 | Restaurant → Ingredients | 1:N | Un restaurante tiene muchos ingredientes |
 | Restaurant → Dishes | 1:N | Un restaurante tiene muchos platos |
 | Restaurant → Orders | 1:N | Un restaurante tiene muchos pedidos |
+| Restaurant → Tables | 1:N | Un restaurante tiene muchas mesas (`restaurant_tables`) |
+| Table → Orders | 1:N | Una mesa puede tener varios pedidos (`orders.table_id`, sin FK) |
 | Dish ↔ Ingredient | N:M | Un plato usa varios ingredientes (via `dish_ingredients`) |
 | Order → OrderItems | 1:N | Un pedido tiene varios ítems |
 | Dish → OrderItems | 1:N | Un plato puede estar en varios ítems de pedido |
@@ -237,3 +274,4 @@ Líneas de pedido. Cada ítem es un plato con cantidad y estado.
 - **Nomenclatura**: las columnas son `snake_case` y las propiedades TypeScript `camelCase`. La conversión se hace con alias en el propio SQL (`owner_first_name as ownerFirstName`).
 - **Migraciones**: Las tablas se crean automáticamente en `Database.initialize()` con `CREATE TABLE IF NOT EXISTS`.
 - **Sin migrations framework**: No se usa un sistema de migraciones formal. Los cambios de esquema se hacen modificando `runInitialMigrations()`. Como solo se ejecuta `CREATE TABLE IF NOT EXISTS`, **añadir una columna no afecta a una base de datos ya creada**: hay que borrar `packages/api/resttek.db` y volver a sembrar.
+- **`orders.table_id` sin FK**: guarda el `id` de `restaurant_tables`, pero no se declaró como clave foránea porque `CREATE TABLE IF NOT EXISTS` no altera la tabla `orders` de bases de datos ya creadas. Tras añadir `restaurant_tables`, borra `packages/api/resttek.db` y ejecuta `npm run seed` para tener mesas de ejemplo.
