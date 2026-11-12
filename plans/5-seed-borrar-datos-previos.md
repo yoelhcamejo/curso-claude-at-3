@@ -69,7 +69,7 @@ Sin cambios: el bug solo afecta al script de seed de la API.
 - [x] `npm run seed` funciona sobre una base de datos nueva (sin `resttek.db` previo).
 - [x] El seed imprime las mismas credenciales y todas siguen siendo válidas para iniciar sesión (contraseña = email).
 - [x] Los tests de `clearDatabase.test.ts` pasan y fallan si se añade una tabla al esquema sin incluirla en el borrado.
-- [ ] `npm test` y la comprobación de tipos de la API pasan (jobs del CI en verde).
+- [x] `npm test` y la comprobación de tipos de la API pasan (jobs del CI en verde).
 - [x] `README.md` y `CLAUDE.md` ya no describen el seed como idempotente/no destructivo.
 
 ## Dudas y decisiones tomadas
