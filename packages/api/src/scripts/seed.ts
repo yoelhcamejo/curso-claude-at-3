@@ -9,6 +9,18 @@ const seed = async () => {
         await dbConfig.initialize()
         console.log('Database initialized.')
 
+        await dbConfig.run(`
+            INSERT OR IGNORE INTO restaurants (id, name, address, email, phone, owner_first_name, owner_last_name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, ['rest-1', 'Restaurante El Gourmet', 'Calle Mayor 10, Madrid', 'info@gourmet.com', '912345678', 'Carlos', 'García', new Date().toISOString(), new Date().toISOString()])
+
+        await dbConfig.run(`
+            INSERT OR IGNORE INTO restaurants (id, name, address, email, phone, owner_first_name, owner_last_name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, ['rest-2', 'Pizzería Napoli', 'Avenida del Sol 25, Barcelona', 'info@napoli.com', '934567890', 'Marco', 'Rossi', new Date().toISOString(), new Date().toISOString()])
+
+        console.log('Restaurants created.')
+
         const authService = new BcryptAuthService()
         const employeeRepo = new SqliteEmployeeRepository(dbConfig)
 
@@ -59,25 +71,13 @@ const seed = async () => {
             }
         }
 
-        await dbConfig.run(`
-            INSERT OR IGNORE INTO restaurants (id, name, address, email, phone, owner_first_name, owner_last_name, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, ['rest-1', 'Restaurante El Gourmet', 'Calle Mayor 10, Madrid', 'info@gourmet.com', '912345678', 'Carlos', 'García', new Date().toISOString(), new Date().toISOString()])
-
-        await dbConfig.run(`
-            INSERT OR IGNORE INTO restaurants (id, name, address, email, phone, owner_first_name, owner_last_name, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, ['rest-2', 'Pizzería Napoli', 'Avenida del Sol 25, Barcelona', 'info@napoli.com', '934567890', 'Marco', 'Rossi', new Date().toISOString(), new Date().toISOString()])
-
-        console.log('Restaurants created.')
-
         const ingredientsRest1 = [
             { id: randomUUID(), name: 'Tomate', unit: 'kg' },
             { id: randomUUID(), name: 'Queso mozzarella', unit: 'kg' },
             { id: randomUUID(), name: 'Aceite de oliva', unit: 'L' },
             { id: randomUUID(), name: 'Ajo', unit: 'kg' },
             { id: randomUUID(), name: 'Albahaca', unit: 'kg' },
-        ]
+        ] as const
 
         for (const ing of ingredientsRest1) {
             await dbConfig.run(`
@@ -132,7 +132,7 @@ const seed = async () => {
             { id: randomUUID(), name: 'Harina', unit: 'kg' },
             { id: randomUUID(), name: 'Levadura', unit: 'kg' },
             { id: randomUUID(), name: 'Tomate triturado', unit: 'kg' },
-        ]
+        ] as const
 
         for (const ing of ingredientsRest2) {
             await dbConfig.run(`
