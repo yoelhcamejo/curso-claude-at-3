@@ -60,17 +60,17 @@ Sin cambios: el bug solo afecta al script de seed de la API.
 
 ### Verificación final
 
-- [ ] 11. Con los bloques A y B integrados: `npm test` en verde, comprobación de tipos de la API sin errores y documentación coherente con el nuevo comportamiento del seed.
+- [x] 11. Con los bloques A y B integrados: `npm test` en verde, comprobación de tipos de la API sin errores y documentación coherente con el nuevo comportamiento del seed.
 
 ## Criterios de aceptación
 
-- [ ] Tras ejecutar `npm run seed`, cualquier fila añadida o modificada a mano antes desaparece y la BD contiene solo los datos de prueba.
-- [ ] Ejecutar `npm run seed` varias veces seguidas deja siempre los mismos conteos por tabla (sin duplicados de platos, ingredientes ni pedidos).
-- [ ] `npm run seed` funciona sobre una base de datos nueva (sin `resttek.db` previo).
-- [ ] El seed imprime las mismas credenciales y todas siguen siendo válidas para iniciar sesión (contraseña = email).
-- [ ] Los tests de `clearDatabase.test.ts` pasan y fallan si se añade una tabla al esquema sin incluirla en el borrado.
+- [x] Tras ejecutar `npm run seed`, cualquier fila añadida o modificada a mano antes desaparece y la BD contiene solo los datos de prueba.
+- [x] Ejecutar `npm run seed` varias veces seguidas deja siempre los mismos conteos por tabla (sin duplicados de platos, ingredientes ni pedidos).
+- [x] `npm run seed` funciona sobre una base de datos nueva (sin `resttek.db` previo).
+- [x] El seed imprime las mismas credenciales y todas siguen siendo válidas para iniciar sesión (contraseña = email).
+- [x] Los tests de `clearDatabase.test.ts` pasan y fallan si se añade una tabla al esquema sin incluirla en el borrado.
 - [ ] `npm test` y la comprobación de tipos de la API pasan (jobs del CI en verde).
-- [ ] `README.md` y `CLAUDE.md` ya no describen el seed como idempotente/no destructivo.
+- [x] `README.md` y `CLAUDE.md` ya no describen el seed como idempotente/no destructivo.
 
 ## Dudas y decisiones tomadas
 
@@ -86,3 +86,10 @@ Sin cambios: el bug solo afecta al script de seed de la API.
 - Agrupar las tareas por aplicación (API y documentación, más una verificación final) — *Motivo:* petición del usuario; permite repartir los bloques entre agentes con `implement-plan`, ya que no comparten archivos.
 - Mantener `INSERT OR IGNORE` en el resto del seed — *Motivo:* tras el borrado es inofensivo y cambiarlo queda fuera del alcance del bug.
 
+
+## Notas de la implementación
+
+- Desde que se planificó, la issue 6 añadió la tabla `restaurant_tables`: `clearDatabase` vacía **8 tablas** (no 7) y el seed crea además 7 mesas. El test de la tarea 3 lo exige.
+- Las tareas 1 (rojo) y 2 (verde) van en un mismo commit para no dejar la suite en rojo en el historial. Para la tarea 3 se comprobó el rojo quitando temporalmente `restaurant_tables` de la lista; el test de la tarea 4 pasa desde el principio porque el comportamiento ya lo cubre la tarea 2 (queda como test de regresión).
+- Verificación real (tarea 7): tres ejecuciones seguidas del seed (la primera con BD nueva) dejan siempre 2 restaurantes, 10 empleados, 8 ingredientes, 7 platos, 12 `dish_ingredients`, 7 mesas, 1 pedido y 8 `order_items`; un ingrediente añadido a mano y un precio modificado desaparecen; los 10 usuarios hacen login con su email como contraseña.
+- Además del README y `CLAUDE.md`, se ajustaron `docs/arquitectura/arquitectura-general.md` (descripción de `npm run seed`) y una nota de `docs/dominio/modelo-datos.md` que decía que había que borrar `resttek.db` para tener la tabla de mesas (no hace falta: al ser nueva se crea sola).

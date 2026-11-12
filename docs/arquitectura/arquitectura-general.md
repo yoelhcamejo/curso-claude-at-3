@@ -59,7 +59,7 @@ Esto permite:
 | `npm run dev:empleados` | Arranca web-empleados en :4201 |
 | `npm run dev:clientes` | Arranca web-clientes en :4202 |
 | `npm test` | Ejecuta los tests de la API |
-| `npm run seed` | Puebla la base de datos con datos de prueba |
+| `npm run seed` | Vacía todas las tablas y las puebla con datos de prueba (borra los datos añadidos a mano) |
 
 ---
 
