@@ -52,7 +52,7 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 ### B. Documentación (raíz del monorepo)
 
 - [x] 9. Actualizar `README.md` (sección del seed, línea "`seed` usa `INSERT OR IGNORE`…"): el seed borra todos los datos de la BD local antes de poblarla.
-- [ ] 10. Actualizar `CLAUDE.md` (comando `npm run seed`): sustituir "INSERT OR IGNORE, idempotente" por que vacía las tablas y vuelve a poblarlas.
+- [x] 10. Actualizar `CLAUDE.md` (comando `npm run seed`): sustituir "INSERT OR IGNORE, idempotente" por que vacía las tablas y vuelve a poblarlas.
 
 ### Frontends (`web-admin`, `web-empleados`, `web-clientes`, `web-shared`)
 
