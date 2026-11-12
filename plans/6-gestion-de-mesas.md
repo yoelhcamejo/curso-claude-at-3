@@ -149,7 +149,7 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 ### E. Documentación (`docs/`)
 
 - [x] 40. `docs/dominio/modelo-datos.md`: tabla `restaurant_tables` en el diagrama y en "Tablas", relación con `restaurants`, y `orders.table_id` como id de `restaurant_tables` (sin FK). Recordar que hay que borrar `resttek.db` para que se cree la tabla nueva.
-- [ ] 41. `docs/dominio/glosario.md`: término "Mesa" en "Entidades de Negocio" y nueva sección "Estados de Mesa" (libre, ocupada, reservada).
+- [x] 41. `docs/dominio/glosario.md`: término "Mesa" en "Entidades de Negocio" y nueva sección "Estados de Mesa" (libre, ocupada, reservada).
 - [ ] 42. `docs/arquitectura/arquitectura-api.md`: `table` en la lista de dominios por capas y una sección "Mesas" en "Endpoints" con las rutas y roles del contrato (y la pública en "Públicos").
 
 ### Verificación final
