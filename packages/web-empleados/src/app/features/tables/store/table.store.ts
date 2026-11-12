@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Table, TableStatus } from '../models/table.model';
 import { TableService } from '../services/table.service';
@@ -20,6 +20,15 @@ export class TableStore {
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
   readonly actionError = this._actionError.asReadonly();
+
+  private readonly numbersById = computed(
+    () => new Map(this._tables().map(t => [t.id, t.number] as const))
+  );
+
+  /** Número de la mesa con ese id, o null si todavía no se ha cargado. */
+  tableNumber(tableId: string): number | null {
+    return this.numbersById().get(tableId) ?? null;
+  }
 
   async loadTables(restaurantId: string): Promise<void> {
     this._loading.set(true);
