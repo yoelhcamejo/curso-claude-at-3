@@ -98,4 +98,36 @@ describe('SqliteTableRepository (Integration)', () => {
             expect(await repo.findAvailable('r1', 100)).toEqual([])
         })
     })
+
+    describe('occupyIfFree', () => {
+        it('should occupy a free table and return true', async () => {
+            await repo.save(buildTable())
+
+            expect(await repo.occupyIfFree('t1')).toBe(true)
+
+            const found = await repo.findById('t1')
+            expect(found?.status).toBe('ocupada')
+            expect(found?.updatedAt).not.toBe(now)
+        })
+
+        it('should return false and keep the status when the table is not free', async () => {
+            await repo.save(buildTable({ id: 'busy', status: 'ocupada' }))
+            await repo.save(buildTable({ id: 'booked', number: 2, status: 'reservada' }))
+
+            expect(await repo.occupyIfFree('busy')).toBe(false)
+            expect(await repo.occupyIfFree('booked')).toBe(false)
+            expect((await repo.findById('booked'))?.status).toBe('reservada')
+        })
+
+        it('should let only one of two concurrent calls occupy the table', async () => {
+            await repo.save(buildTable())
+
+            const results = await Promise.all([repo.occupyIfFree('t1'), repo.occupyIfFree('t1')])
+            expect(results.filter(Boolean)).toHaveLength(1)
+        })
+
+        it('should return false when the table does not exist', async () => {
+            expect(await repo.occupyIfFree('missing')).toBe(false)
+        })
+    })
 })
