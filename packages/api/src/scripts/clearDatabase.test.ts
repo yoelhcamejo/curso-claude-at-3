@@ -68,6 +68,10 @@ describe('clearDatabase', () => {
         }
     })
 
+    it('no falla con la base de datos vacía', async () => {
+        await expect(clearDatabase(db)).resolves.toBeUndefined()
+    })
+
     it('incluye en el borrado todas las tablas del esquema', async () => {
         const rows = await db.all<{ name: string }>(
             "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
