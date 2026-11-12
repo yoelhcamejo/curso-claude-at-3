@@ -97,54 +97,54 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 
 ### A. API (`packages/api`)
 
-- [ ] 1. Test (rojo) de `normalizeTableStatus()` en `services/table.service.test.ts`: acepta `libre`/`ocupada`/`reservada` con trim y lowercase, y lanza `InvalidTableStatusError` con valores vacíos o desconocidos.
-- [ ] 2. Crear `models/table.model.ts` (interfaz `Table`, `TableStatusType`, `normalizeTableStatus`) y los errores de mesa en `DomainErrors.ts` (verde).
-- [ ] 3. Añadir la tabla `restaurant_tables` en `runInitialMigrations()` (`id`, `restaurant_id` FK, `number` INTEGER, `description`, `capacity` INTEGER, `status` TEXT DEFAULT `'libre'`, `created_at`, `updated_at`, `UNIQUE(restaurant_id, number)`).
-- [ ] 4. Test (rojo) de `SqliteTableRepository` en `table.repository.test.ts` (BD en memoria): `save` + `findById`, `findByRestaurantId` ordenado por `number` y `delete`.
-- [ ] 5. Implementar `repositories/table.repository.ts` (interfaz + `SqliteTableRepository`) con esos métodos (verde).
-- [ ] 6. Test + implementación de `findAvailable(restaurantId, people)`: solo `libre` y `capacity >= people`, ordenado por `capacity` y `number`.
-- [ ] 7. Test + implementación de `occupyIfFree(id)`: `UPDATE ... SET status='ocupada' WHERE id = ? AND status = 'libre'` devolviendo `true/false` según `changes`, para que dos clientes no ocupen la misma mesa.
-- [ ] 8. Crear `repositories/mocks/MockTableRepository.ts` siguiendo `MockIngredientRepository`.
-- [ ] 9. Test + implementación de `TableService.create`: valida `number` entero > 0, `capacity` entero > 0 y `restaurantId`; nace `libre`; lanza `DuplicatedTableNumberError` si el número ya existe en el restaurante.
-- [ ] 10. Test + implementación de `TableService.update`, `getById`, `getByRestaurant` y `delete` (404 si no existe; `TableOccupiedError` al borrar una mesa `ocupada`).
-- [ ] 11. Test + implementación de `TableService.changeStatus(id, status)` con `normalizeTableStatus`.
-- [ ] 12. Test + implementación de `TableService.listAvailable(restaurantId, people)` (`InvalidPeopleCountError` si `people` no es entero > 0) y `occupy(restaurantId, id)` (404 si no existe o es de otro restaurante; `TableNotAvailableError` si `occupyIfFree` devuelve `false`).
-- [ ] 13. Mapear errores en `errorHandler.ts`: `TableNotFoundError` → 404 y nueva lista `CONFLICT_ERRORS` (`TableNotAvailableError`, `DuplicatedTableNumberError`, `TableOccupiedError`) → 409, con un test del handler.
-- [ ] 14. Crear `controllers/table.controller.ts` siguiendo `ingredient.controller.ts` (CRUD, `changeStatus`, `listAvailable`, `occupy`).
-- [ ] 15. Crear `routes/table.routes.ts` (`mergeParams`, roles según el contrato) y `routes/table.public.routes.ts`, y montarlas en `app.ts` (`/api/v1/restaurants/:restaurantId/tables` y `/api/v1/public/restaurants/:restaurantId/tables`).
-- [ ] 16. Seed: crear 4 mesas en `rest-1` (capacidades 2, 2, 4, 6) y 3 en `rest-2` (2, 4, 8), dejar una ocupada en cada restaurante y usar el `id` de la mesa ocupada de `rest-1` como `table_id` del pedido de ejemplo. Si el plan de la issue 5 ya está implementado, añadir `restaurant_tables` a la lista de borrado de `clearDatabase` (su test lo exigirá).
-- [ ] 17. Verificación manual con la API arrancada: login como admin y como cliente, recorrer los endpoints del contrato (incluido el 409 al ocupar dos veces la misma mesa y los 403 por rol).
-- [ ] 18. Verificación del bloque: `npx tsc --noEmit -p tsconfig.json` sin errores y `npm test` en verde.
+- [x] 1. Test (rojo) de `normalizeTableStatus()` en `services/table.service.test.ts`: acepta `libre`/`ocupada`/`reservada` con trim y lowercase, y lanza `InvalidTableStatusError` con valores vacíos o desconocidos.
+- [x] 2. Crear `models/table.model.ts` (interfaz `Table`, `TableStatusType`, `normalizeTableStatus`) y los errores de mesa en `DomainErrors.ts` (verde).
+- [x] 3. Añadir la tabla `restaurant_tables` en `runInitialMigrations()` (`id`, `restaurant_id` FK, `number` INTEGER, `description`, `capacity` INTEGER, `status` TEXT DEFAULT `'libre'`, `created_at`, `updated_at`, `UNIQUE(restaurant_id, number)`).
+- [x] 4. Test (rojo) de `SqliteTableRepository` en `table.repository.test.ts` (BD en memoria): `save` + `findById`, `findByRestaurantId` ordenado por `number` y `delete`.
+- [x] 5. Implementar `repositories/table.repository.ts` (interfaz + `SqliteTableRepository`) con esos métodos (verde).
+- [x] 6. Test + implementación de `findAvailable(restaurantId, people)`: solo `libre` y `capacity >= people`, ordenado por `capacity` y `number`.
+- [x] 7. Test + implementación de `occupyIfFree(id)`: `UPDATE ... SET status='ocupada' WHERE id = ? AND status = 'libre'` devolviendo `true/false` según `changes`, para que dos clientes no ocupen la misma mesa.
+- [x] 8. Crear `repositories/mocks/MockTableRepository.ts` siguiendo `MockIngredientRepository`.
+- [x] 9. Test + implementación de `TableService.create`: valida `number` entero > 0, `capacity` entero > 0 y `restaurantId`; nace `libre`; lanza `DuplicatedTableNumberError` si el número ya existe en el restaurante.
+- [x] 10. Test + implementación de `TableService.update`, `getById`, `getByRestaurant` y `delete` (404 si no existe; `TableOccupiedError` al borrar una mesa `ocupada`).
+- [x] 11. Test + implementación de `TableService.changeStatus(id, status)` con `normalizeTableStatus`.
+- [x] 12. Test + implementación de `TableService.listAvailable(restaurantId, people)` (`InvalidPeopleCountError` si `people` no es entero > 0) y `occupy(restaurantId, id)` (404 si no existe o es de otro restaurante; `TableNotAvailableError` si `occupyIfFree` devuelve `false`).
+- [x] 13. Mapear errores en `errorHandler.ts`: `TableNotFoundError` → 404 y nueva lista `CONFLICT_ERRORS` (`TableNotAvailableError`, `DuplicatedTableNumberError`, `TableOccupiedError`) → 409, con un test del handler.
+- [x] 14. Crear `controllers/table.controller.ts` siguiendo `ingredient.controller.ts` (CRUD, `changeStatus`, `listAvailable`, `occupy`).
+- [x] 15. Crear `routes/table.routes.ts` (`mergeParams`, roles según el contrato) y `routes/table.public.routes.ts`, y montarlas en `app.ts` (`/api/v1/restaurants/:restaurantId/tables` y `/api/v1/public/restaurants/:restaurantId/tables`).
+- [x] 16. Seed: crear 4 mesas en `rest-1` (capacidades 2, 2, 4, 6) y 3 en `rest-2` (2, 4, 8), dejar una ocupada en cada restaurante y usar el `id` de la mesa ocupada de `rest-1` como `table_id` del pedido de ejemplo. Si el plan de la issue 5 ya está implementado, añadir `restaurant_tables` a la lista de borrado de `clearDatabase` (su test lo exigirá).
+- [x] 17. Verificación manual con la API arrancada: login como admin y como cliente, recorrer los endpoints del contrato (incluido el 409 al ocupar dos veces la misma mesa y los 403 por rol).
+- [x] 18. Verificación del bloque: `npx tsc --noEmit -p tsconfig.json` sin errores y `npm test` en verde.
 
 ### B. Web Admin (`packages/web-admin`)
 
-- [ ] 19. Crear `features/tables/models/table.model.ts` (`Table`, `TableStatus`, `CreateTableDto`, `UpdateTableDto`) y `services/table.service.ts` siguiendo `features/ingredients`.
-- [ ] 20. Test (rojo) `store/table.store.spec.ts`: `loadByRestaurant` carga y ordena, descarta respuestas de otro restaurante y expone error si falla; `create`/`update`/`delete` actualizan la lista.
-- [ ] 21. Implementar `store/table.store.ts` (signals privadas en solo lectura, `firstValueFrom`), siguiendo `ingredient.store.ts` (verde).
-- [ ] 22. Crear `pages/table-list` (tabla con número, descripción, capacidad y badge de estado; editar y borrar con confirmación; reacciona a `paramMap` como `ingredient-list`).
-- [ ] 23. Crear `pages/table-form` (alta/edición: número, descripción, capacidad y, en edición, estado), con validación y `<label>` asociados.
-- [ ] 24. Crear `tables.routes.ts`, registrar `tables` en `app.routes.ts` y añadir el enlace "Mesas" en `shell.component.html`.
-- [ ] 25. Verificación: `npm test -w @resttek/web-admin` y `npm run build -w @resttek/web-admin` en verde, y Prettier sobre los archivos nuevos (`npx prettier --check`).
+- [x] 19. Crear `features/tables/models/table.model.ts` (`Table`, `TableStatus`, `CreateTableDto`, `UpdateTableDto`) y `services/table.service.ts` siguiendo `features/ingredients`.
+- [x] 20. Test (rojo) `store/table.store.spec.ts`: `loadByRestaurant` carga y ordena, descarta respuestas de otro restaurante y expone error si falla; `create`/`update`/`delete` actualizan la lista.
+- [x] 21. Implementar `store/table.store.ts` (signals privadas en solo lectura, `firstValueFrom`), siguiendo `ingredient.store.ts` (verde).
+- [x] 22. Crear `pages/table-list` (tabla con número, descripción, capacidad y badge de estado; editar y borrar con confirmación; reacciona a `paramMap` como `ingredient-list`).
+- [x] 23. Crear `pages/table-form` (alta/edición: número, descripción, capacidad y, en edición, estado), con validación y `<label>` asociados.
+- [x] 24. Crear `tables.routes.ts`, registrar `tables` en `app.routes.ts` y añadir el enlace "Mesas" en `shell.component.html`.
+- [x] 25. Verificación: `npm test -w @resttek/web-admin` y `npm run build -w @resttek/web-admin` en verde, y Prettier sobre los archivos nuevos (`npx prettier --check`).
 
 ### C. Web Empleados (`packages/web-empleados`)
 
-- [ ] 26. Crear `features/tables/models/table.model.ts` y `services/table.service.ts` (`getAll(restaurantId)` y `changeStatus(restaurantId, id, status)`).
-- [ ] 27. Crear `features/tables/store/table.store.ts` con polling (`startPolling`/`stopPolling`) siguiendo `orders/store/order.store.ts`.
-- [ ] 28. Crear `pages/mesas`: tarjetas por mesa con número, capacidad y estado, y un `<select>` para cambiar el estado.
-- [ ] 29. En `pages/mesas`, para cada mesa ocupada, mostrar sus pedidos activos y el estado de cada item, cruzando `OrderStore.orders()` por `tableId`.
-- [ ] 30. Registrar la ruta `/mesas` en `app.routes.ts` y el enlace "Mesas" en `shell.component.html`.
-- [ ] 31. Verificación: `npm run build -w @resttek/web-empleados` sin errores (este paquete no tiene tests unitarios).
+- [x] 26. Crear `features/tables/models/table.model.ts` y `services/table.service.ts` (`getAll(restaurantId)` y `changeStatus(restaurantId, id, status)`).
+- [x] 27. Crear `features/tables/store/table.store.ts` con polling (`startPolling`/`stopPolling`) siguiendo `orders/store/order.store.ts`.
+- [x] 28. Crear `pages/mesas`: tarjetas por mesa con número, capacidad y estado, y un `<select>` para cambiar el estado.
+- [x] 29. En `pages/mesas`, para cada mesa ocupada, mostrar sus pedidos activos y el estado de cada item, cruzando `OrderStore.orders()` por `tableId`.
+- [x] 30. Registrar la ruta `/mesas` en `app.routes.ts` y el enlace "Mesas" en `shell.component.html`.
+- [x] 31. Verificación: `npm run build -w @resttek/web-empleados` sin errores (este paquete no tiene tests unitarios).
 
 ### D. Web Clientes (`packages/web-clientes`)
 
-- [ ] 32. Crear `core/models/table.model.ts` y `core/services/table.service.ts` (`getAvailable(restaurantId, people)` y `occupy(restaurantId, tableId)`, devolviendo `Observable`).
-- [ ] 33. Añadir a `CartStore` la mesa elegida (`tableId`, `tableNumber` y restaurante) con `setTable()`/`clearTable()`, y limpiarla si se cambia de restaurante.
-- [ ] 34. Crear `features/tables/table-selection.component.ts`: campo de número de personas y botón para buscar mesas disponibles.
-- [ ] 35. En `table-selection`, listar las mesas disponibles, permitir elegir una y, al pulsar "Continuar", llamar a `occupy`, guardar la mesa en `CartStore` y navegar a `/restaurants/:id`; si la API responde 409, avisar y recargar las disponibles.
-- [ ] 36. Registrar la ruta `restaurants/:id/mesa` en `app.routes.ts` y hacer que el enlace de `restaurant-list` vaya a ella.
-- [ ] 37. En `restaurant-menu`, redirigir a `restaurants/:id/mesa` si no hay mesa elegida para ese restaurante y mostrar "Mesa N".
-- [ ] 38. Enviar el `tableId` del `CartStore` en `OrderService.createOrder` desde `cart.component.ts`.
-- [ ] 39. Verificación: `npm run build -w @resttek/web-clientes` sin errores y Prettier sobre los archivos tocados.
+- [x] 32. Crear `core/models/table.model.ts` y `core/services/table.service.ts` (`getAvailable(restaurantId, people)` y `occupy(restaurantId, tableId)`, devolviendo `Observable`).
+- [x] 33. Añadir a `CartStore` la mesa elegida (`tableId`, `tableNumber` y restaurante) con `setTable()`/`clearTable()`, y limpiarla si se cambia de restaurante.
+- [x] 34. Crear `features/tables/table-selection.component.ts`: campo de número de personas y botón para buscar mesas disponibles.
+- [x] 35. En `table-selection`, listar las mesas disponibles, permitir elegir una y, al pulsar "Continuar", llamar a `occupy`, guardar la mesa en `CartStore` y navegar a `/restaurants/:id`; si la API responde 409, avisar y recargar las disponibles.
+- [x] 36. Registrar la ruta `restaurants/:id/mesa` en `app.routes.ts` y hacer que el enlace de `restaurant-list` vaya a ella.
+- [x] 37. En `restaurant-menu`, redirigir a `restaurants/:id/mesa` si no hay mesa elegida para ese restaurante y mostrar "Mesa N".
+- [x] 38. Enviar el `tableId` del `CartStore` en `OrderService.createOrder` desde `cart.component.ts`.
+- [x] 39. Verificación: `npm run build -w @resttek/web-clientes` sin errores y Prettier sobre los archivos tocados.
 
 ### E. Documentación (`docs/`)
 
@@ -154,22 +154,22 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 
 ### Verificación final
 
-- [ ] 43. Con todos los bloques integrados, borrar `resttek.db`, ejecutar `npm run seed` y recorrer el flujo completo: el admin crea una mesa; un cliente elige 3 personas, ve solo mesas libres de capacidad ≥ 3, ocupa una y hace un pedido; en `web-empleados` la mesa aparece ocupada con el pedido y su estado; un camarero la pasa a `libre`.
-- [ ] 44. `npm test` y la comprobación de tipos de la API en verde, y builds de los tres frontends y tests de `web-admin` en verde (lo mismo que comprueba el CI).
+- [x] 43. Con todos los bloques integrados, borrar `resttek.db`, ejecutar `npm run seed` y recorrer el flujo completo: el admin crea una mesa; un cliente elige 3 personas, ve solo mesas libres de capacidad ≥ 3, ocupa una y hace un pedido; en `web-empleados` la mesa aparece ocupada con el pedido y su estado; un camarero la pasa a `libre`.
+- [x] 44. `npm test` y la comprobación de tipos de la API en verde, y builds de los tres frontends y tests de `web-admin` en verde (lo mismo que comprueba el CI).
 
 ## Criterios de aceptación
 
-- [ ] Un admin puede crear, listar, editar y borrar mesas de un restaurante desde `web-admin`; no se pueden repetir números en el mismo restaurante ni borrar una mesa ocupada.
-- [ ] Cada mesa tiene id, número, descripción, capacidad y estado (`libre`, `ocupada` o `reservada`).
-- [ ] En `web-clientes`, tras elegir restaurante se pide el número de personas y solo se muestran mesas `libre` con capacidad ≥ personas.
-- [ ] Al elegir una mesa y pulsar "Continuar", la mesa queda `ocupada` y el cliente llega a la carta de ese restaurante.
-- [ ] Si dos clientes intentan ocupar la misma mesa, solo uno lo consigue; el otro recibe un 409 y ve un aviso.
-- [ ] El pedido creado desde el carrito guarda el `tableId` de la mesa elegida.
-- [ ] En `web-empleados`, la página "Mesas" muestra el estado de todas las mesas, permite cambiarlo y, en las ocupadas, muestra sus pedidos activos con el estado de cada item.
-- [ ] Los endpoints respetan los roles del contrato (p. ej. un camarero recibe 403 al crear una mesa y un cliente 403 al cambiar el estado).
-- [ ] El seed crea mesas de ejemplo en ambos restaurantes.
-- [ ] Hay tests de Vitest del modelo, el repositorio y el servicio de mesas en la API, y del store en `web-admin`, y todos pasan.
-- [ ] `docs/dominio/modelo-datos.md`, `docs/dominio/glosario.md` y `docs/arquitectura/arquitectura-api.md` describen las mesas y sus endpoints.
+- [x] Un admin puede crear, listar, editar y borrar mesas de un restaurante desde `web-admin`; no se pueden repetir números en el mismo restaurante ni borrar una mesa ocupada.
+- [x] Cada mesa tiene id, número, descripción, capacidad y estado (`libre`, `ocupada` o `reservada`).
+- [x] En `web-clientes`, tras elegir restaurante se pide el número de personas y solo se muestran mesas `libre` con capacidad ≥ personas.
+- [x] Al elegir una mesa y pulsar "Continuar", la mesa queda `ocupada` y el cliente llega a la carta de ese restaurante.
+- [x] Si dos clientes intentan ocupar la misma mesa, solo uno lo consigue; el otro recibe un 409 y ve un aviso.
+- [x] El pedido creado desde el carrito guarda el `tableId` de la mesa elegida.
+- [x] En `web-empleados`, la página "Mesas" muestra el estado de todas las mesas, permite cambiarlo y, en las ocupadas, muestra sus pedidos activos con el estado de cada item.
+- [x] Los endpoints respetan los roles del contrato (p. ej. un camarero recibe 403 al crear una mesa y un cliente 403 al cambiar el estado).
+- [x] El seed crea mesas de ejemplo en ambos restaurantes.
+- [x] Hay tests de Vitest del modelo, el repositorio y el servicio de mesas en la API, y del store en `web-admin`, y todos pasan.
+- [x] `docs/dominio/modelo-datos.md`, `docs/dominio/glosario.md` y `docs/arquitectura/arquitectura-api.md` describen las mesas y sus endpoints.
 - [ ] El CI (tipos y tests de la API, builds de los tres frontends, tests de `web-admin` y Prettier) pasa en la PR.
 
 ## Dudas y decisiones tomadas
@@ -197,3 +197,10 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 - Las tareas se agrupan por aplicación y se fija el contrato de la API en el plan — *Motivo:* petición del usuario; permite repartir los bloques entre agentes con `implement-plan`.
 - Si se implementa antes el plan de la issue 5, la tabla nueva debe añadirse a `clearDatabase` (tarea 16) — *Motivo:* el test de esa issue falla si hay tablas sin incluir en el borrado.
 
+
+## Notas de la implementación
+
+- Implementado por un equipo de 4 agentes (API, web-admin, web-empleados, web-clientes) en worktrees separados, tras consensuar entre todos el contrato `docs/api/openapi.yml` (tarea 0). El bloque E y la integración, por el coordinador.
+- Fuera del plan, con el OK del usuario: cocina, barra y salón de `web-empleados` mostraban el UUID de la mesa (`Order.tableId`); ahora muestran su número.
+- En el seed, la parte de `clearDatabase` (tarea 16) no aplica: la issue 5 aún no está implementada.
+- En `web-clientes` la mesa elegida se conserva en el carrito tras crear el pedido (solo se limpia al cambiar de restaurante), para poder seguir pidiendo.
