@@ -108,6 +108,18 @@ export class TableService {
         await this.tableRepository.delete(existing.id)
     }
 
+    async changeStatus(restaurantId: string, id: string, status: unknown): Promise<Table> {
+        const existing = await this.getById(restaurantId, id)
+        const updated: Table = {
+            ...existing,
+            status: normalizeTableStatus(status),
+            updatedAt: new Date().toISOString()
+        }
+
+        await this.tableRepository.save(updated)
+        return updated
+    }
+
     private validateNumber(value: unknown): number {
         if (!isPositiveInteger(value)) {
             throw new InvalidTableNumberError()
