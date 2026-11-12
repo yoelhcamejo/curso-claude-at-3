@@ -1,9 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TableService } from '../../core/services/table.service';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { Restaurant } from '../../core/models/restaurant.model';
 import { Table } from '../../core/models/table.model';
+import { CartStore } from '../../core/store/cart.store';
 
 @Component({
   selector: 'app-table-selection',
@@ -37,6 +38,10 @@ import { Table } from '../../core/models/table.model';
         <div class="alert-error">{{ validationError() }}</div>
       }
 
+      @if (notice()) {
+        <div class="alert-error">{{ notice() }}</div>
+      }
+
       @if (loading()) {
         <div class="spinner"></div>
       } @else if (error()) {
@@ -63,6 +68,14 @@ import { Table } from '../../core/models/table.model';
               </button>
             }
           </div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="!selectedId() || occupying()"
+            (click)="continue()"
+          >
+            Continuar
+          </button>
         }
       }
     </div>
@@ -124,6 +137,8 @@ export class TableSelectionComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly tableService = inject(TableService);
   private readonly restaurantService = inject(RestaurantService);
+  private readonly cartStore = inject(CartStore);
+  private readonly router = inject(Router);
 
   readonly restaurantId = this.route.snapshot.paramMap.get('id')!;
 
@@ -136,6 +151,8 @@ export class TableSelectionComponent implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly validationError = signal<string | null>(null);
+  readonly notice = signal<string | null>(null);
+  readonly occupying = signal(false);
 
   ngOnInit(): void {
     this.restaurantService.getById(this.restaurantId).subscribe({
@@ -155,11 +172,40 @@ export class TableSelectionComponent implements OnInit {
       return;
     }
     this.validationError.set(null);
+    this.notice.set(null);
     this.loadAvailable(Number(raw));
   }
 
   select(table: Table): void {
     this.selectedId.set(table.id);
+  }
+
+  continue(): void {
+    const table = this.tables().find((t) => t.id === this.selectedId());
+    if (!table || this.occupying()) return;
+
+    this.occupying.set(true);
+    this.notice.set(null);
+    this.tableService.occupy(this.restaurantId, table.id).subscribe({
+      next: (occupied) => {
+        this.cartStore.setTable({
+          tableId: occupied.id,
+          tableNumber: occupied.number,
+          restaurantId: this.restaurantId,
+        });
+        this.occupying.set(false);
+        this.router.navigate(['/restaurants', this.restaurantId]);
+      },
+      error: (err) => {
+        this.occupying.set(false);
+        if (err.status === 409) {
+          this.notice.set('Esa mesa ya no está disponible');
+          this.loadAvailable(this.searchedPeople());
+        } else {
+          this.notice.set('No se ha podido ocupar la mesa. Inténtalo de nuevo.');
+        }
+      },
+    });
   }
 
   private loadAvailable(people: number): void {
