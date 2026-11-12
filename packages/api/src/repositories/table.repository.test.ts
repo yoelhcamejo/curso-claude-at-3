@@ -130,4 +130,14 @@ describe('SqliteTableRepository (Integration)', () => {
             expect(await repo.occupyIfFree('missing')).toBe(false)
         })
     })
+
+    describe('findByRestaurantAndNumber', () => {
+        it('should find a table by restaurant and number', async () => {
+            await repo.save(buildTable({ id: 'a', number: 4 }))
+            await repo.save(buildTable({ id: 'b', restaurantId: 'r2', number: 4 }))
+
+            expect((await repo.findByRestaurantAndNumber('r2', 4))?.id).toBe('b')
+            expect(await repo.findByRestaurantAndNumber('r1', 5)).toBeNull()
+        })
+    })
 })

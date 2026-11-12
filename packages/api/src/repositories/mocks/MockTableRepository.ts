@@ -16,6 +16,11 @@ export class MockTableRepository implements TableRepository {
             .map(t => ({ ...t }))
     }
 
+    async findByRestaurantAndNumber(restaurantId: string, number: number): Promise<Table | null> {
+        const table = Array.from(this.tables.values()).find(t => t.restaurantId === restaurantId && t.number === number)
+        return table ? { ...table } : null
+    }
+
     async findAvailable(restaurantId: string, people: number): Promise<Table[]> {
         return Array.from(this.tables.values())
             .filter(t => t.restaurantId === restaurantId && t.status === 'libre' && t.capacity >= people)
