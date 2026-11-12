@@ -3,11 +3,15 @@ import { dbConfig } from '@config/database.js'
 import { BcryptAuthService } from '@employee/infrastructure/BcryptAuthService.js'
 import { SqliteEmployeeRepository } from '@employee/infrastructure/SqliteEmployeeRepository.js'
 import { Employee } from '@employee/domain/Employee.js'
+import { clearDatabase } from './clearDatabase.js'
 
 const seed = async () => {
     try {
         await dbConfig.initialize()
         console.log('Database initialized.')
+
+        await clearDatabase(dbConfig)
+        console.log('Database cleared.')
 
         await dbConfig.run(`
             INSERT OR IGNORE INTO restaurants (id, name, address, email, phone, owner_first_name, owner_last_name, created_at, updated_at)

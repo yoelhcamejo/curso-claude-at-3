@@ -44,7 +44,7 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 - [x] 2. Implementar `clearDatabase.ts` (verde): `BEGIN`, `DELETE FROM` de cada tabla en orden hijo → padre (`order_items`, `orders`, `dish_ingredients`, `dishes`, `ingredients`, `employees`, `restaurants`), `COMMIT`, y `ROLLBACK` + relanzar el error si algo falla.
 - [x] 3. Test: comprobar que la lista de tablas de `clearDatabase` incluye todas las tablas de usuario de `sqlite_master` (excluyendo `sqlite_%`), para que el test falle si se añade una tabla nueva y no se incluye. Exportar la lista (p. ej. `TABLES_IN_DELETE_ORDER`) si hace falta.
 - [x] 4. Test: con la base de datos vacía, `clearDatabase` no lanza error (el seed sobre una BD nueva debe funcionar).
-- [ ] 5. Modificar `seed.ts`: importar `clearDatabase` y llamarlo justo después de `dbConfig.initialize()`, con un `console.log('Database cleared.')`.
+- [x] 5. Modificar `seed.ts`: importar `clearDatabase` y llamarlo justo después de `dbConfig.initialize()`, con un `console.log('Database cleared.')`.
 - [ ] 6. Simplificar en `seed.ts` la creación del admin y de los empleados: quitar los `findByEmail` y las ramas "already exists", ya que la tabla siempre está vacía.
 - [ ] 7. Verificar el seed real: ejecutar `npm run seed` dos veces seguidas, añadiendo antes de la segunda un dato a mano (p. ej. un ingrediente), y comprobar con `sqlite3` o un script que tras la segunda ejecución el dato no existe y los conteos coinciden con la primera (2 restaurantes, 10 empleados, 8 ingredientes, 7 platos, 1 pedido).
 - [ ] 8. Verificación de la API: `npx tsc --noEmit -p tsconfig.json` sin errores y `npm test` en verde.
