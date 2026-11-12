@@ -109,4 +109,132 @@ describe('TableService', () => {
             expect(other.restaurantId).toBe('r2')
         })
     })
+
+    describe('getById', () => {
+        it('should return the table of the restaurant', async () => {
+            const created = await service.create(validInput)
+            expect(await service.getById('r1', created.id)).toEqual(created)
+        })
+
+        it('should throw TableNotFoundError when the table does not exist', async () => {
+            await expect(service.getById('r1', 'missing'))
+                .rejects.toMatchObject({ name: 'TableNotFoundError', message: 'Table not found' })
+        })
+
+        it('should throw TableNotFoundError when the table belongs to another restaurant', async () => {
+            const created = await service.create(validInput)
+            await expect(service.getById('r2', created.id)).rejects.toMatchObject({ name: 'TableNotFoundError' })
+        })
+    })
+
+    describe('getByRestaurant', () => {
+        it('should return the tables of the restaurant ordered by number', async () => {
+            await service.create({ ...validInput, number: 3 })
+            await service.create({ ...validInput, number: 1 })
+            await service.create({ ...validInput, restaurantId: 'r2', number: 2 })
+
+            const tables = await service.getByRestaurant('r1')
+            expect(tables.map(t => t.number)).toEqual([1, 3])
+        })
+
+        it('should return an empty array for a restaurant without tables', async () => {
+            expect(await service.getByRestaurant('unknown')).toEqual([])
+        })
+    })
+
+    describe('update', () => {
+        const validUpdate = { number: 5, description: '  Terraza ', capacity: 6 }
+
+        it('should update number, description and capacity keeping the status when omitted', async () => {
+            const created = await service.create(validInput)
+            await tableRepo.save({ ...created, status: 'reservada' })
+
+            const updated = await service.update('r1', created.id, validUpdate)
+
+            expect(updated).toMatchObject({ id: created.id, restaurantId: 'r1', number: 5, description: 'Terraza', capacity: 6, status: 'reservada', createdAt: created.createdAt })
+            expect(await tableRepo.findById(created.id)).toEqual(updated)
+        })
+
+        it('should default the description to an empty string when omitted', async () => {
+            const created = await service.create(validInput)
+            const updated = await service.update('r1', created.id, { number: 1, capacity: 2 })
+            expect(updated.description).toBe('')
+        })
+
+        it('should change the status, also when the table is occupied', async () => {
+            const created = await service.create(validInput)
+            await tableRepo.save({ ...created, status: 'ocupada' })
+
+            const updated = await service.update('r1', created.id, { ...validUpdate, status: ' Libre ' })
+            expect(updated.status).toBe('libre')
+        })
+
+        it('should throw InvalidTableStatusError for an invalid status', async () => {
+            const created = await service.create(validInput)
+            await expect(service.update('r1', created.id, { ...validUpdate, status: 'cerrada' }))
+                .rejects.toMatchObject({ name: 'InvalidTableStatusError' })
+            await expect(service.update('r1', created.id, { ...validUpdate, status: null }))
+                .rejects.toMatchObject({ name: 'InvalidTableStatusError' })
+        })
+
+        it.each(invalidIntegers)('should throw InvalidTableNumberError when number is %j', async (number) => {
+            const created = await service.create(validInput)
+            await expect(service.update('r1', created.id, { ...validUpdate, number }))
+                .rejects.toMatchObject({ name: 'InvalidTableNumberError' })
+        })
+
+        it.each(invalidIntegers)('should throw InvalidTableCapacityError when capacity is %j', async (capacity) => {
+            const created = await service.create(validInput)
+            await expect(service.update('r1', created.id, { ...validUpdate, capacity }))
+                .rejects.toMatchObject({ name: 'InvalidTableCapacityError' })
+        })
+
+        it('should allow keeping its own number', async () => {
+            const created = await service.create(validInput)
+            const updated = await service.update('r1', created.id, { number: 1, capacity: 8 })
+            expect(updated.capacity).toBe(8)
+        })
+
+        it('should throw DuplicatedTableNumberError when another table of the restaurant has the number', async () => {
+            await service.create({ ...validInput, number: 5 })
+            const created = await service.create(validInput)
+            await expect(service.update('r1', created.id, validUpdate))
+                .rejects.toMatchObject({ name: 'DuplicatedTableNumberError' })
+        })
+
+        it('should throw TableNotFoundError when the table does not exist or is of another restaurant', async () => {
+            const created = await service.create(validInput)
+            await expect(service.update('r1', 'missing', validUpdate)).rejects.toMatchObject({ name: 'TableNotFoundError' })
+            await expect(service.update('r2', created.id, validUpdate)).rejects.toMatchObject({ name: 'TableNotFoundError' })
+        })
+    })
+
+    describe('delete', () => {
+        it('should delete a free or reserved table', async () => {
+            const free = await service.create(validInput)
+            const booked = await service.create({ ...validInput, number: 2 })
+            await tableRepo.save({ ...booked, status: 'reservada' })
+
+            await service.delete('r1', free.id)
+            await service.delete('r1', booked.id)
+
+            expect(await service.getByRestaurant('r1')).toEqual([])
+        })
+
+        it('should throw TableOccupiedError when the table is occupied', async () => {
+            const created = await service.create(validInput)
+            await tableRepo.save({ ...created, status: 'ocupada' })
+
+            await expect(service.delete('r1', created.id))
+                .rejects.toMatchObject({ name: 'TableOccupiedError', message: 'Cannot delete an occupied table' })
+            expect(await tableRepo.findById(created.id)).not.toBeNull()
+        })
+
+        it('should throw TableNotFoundError when the table does not exist or is of another restaurant', async () => {
+            const created = await service.create(validInput)
+            await expect(service.delete('r1', 'missing')).rejects.toMatchObject({ name: 'TableNotFoundError' })
+            await expect(service.delete('r2', created.id)).rejects.toMatchObject({ name: 'TableNotFoundError' })
+            expect(await tableRepo.findById(created.id)).not.toBeNull()
+        })
+    })
 })

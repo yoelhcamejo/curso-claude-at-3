@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto'
 import type { Table } from '@models/table.model.js'
+import { normalizeTableStatus } from '@models/table.model.js'
 import type { TableRepository } from '@repositories/table.repository.js'
 import type { RestaurantRepository } from '@repositories/restaurant.repository.js'
 import {
@@ -7,7 +8,9 @@ import {
     InvalidTableCapacityError,
     InvalidTableNumberError,
     RestaurantIdRequiredError,
-    RestaurantNotFoundError
+    RestaurantNotFoundError,
+    TableNotFoundError,
+    TableOccupiedError
 } from '@errors/DomainErrors.js'
 
 export interface CreateTableDTO {
@@ -15,6 +18,13 @@ export interface CreateTableDTO {
     number: unknown
     description?: unknown
     capacity: unknown
+}
+
+export interface UpdateTableDTO {
+    number: unknown
+    description?: unknown
+    capacity: unknown
+    status?: unknown
 }
 
 const isPositiveInteger = (value: unknown): value is number =>
@@ -55,6 +65,47 @@ export class TableService {
 
         await this.tableRepository.save(table)
         return table
+    }
+
+    async getById(restaurantId: string, id: string): Promise<Table> {
+        const table = await this.tableRepository.findById(id)
+        if (!table || table.restaurantId !== restaurantId) {
+            throw new TableNotFoundError()
+        }
+        return table
+    }
+
+    async getByRestaurant(restaurantId: string): Promise<Table[]> {
+        return this.tableRepository.findByRestaurantId(restaurantId)
+    }
+
+    async update(restaurantId: string, id: string, dto: UpdateTableDTO): Promise<Table> {
+        const existing = await this.getById(restaurantId, id)
+        const number = this.validateNumber(dto.number)
+        const capacity = this.validateCapacity(dto.capacity)
+        const status = dto.status === undefined ? existing.status : normalizeTableStatus(dto.status)
+
+        await this.ensureNumberIsFree(restaurantId, number, existing.id)
+
+        const updated: Table = {
+            ...existing,
+            number,
+            description: normalizeDescription(dto.description),
+            capacity,
+            status,
+            updatedAt: new Date().toISOString()
+        }
+
+        await this.tableRepository.save(updated)
+        return updated
+    }
+
+    async delete(restaurantId: string, id: string): Promise<void> {
+        const existing = await this.getById(restaurantId, id)
+        if (existing.status === 'ocupada') {
+            throw new TableOccupiedError()
+        }
+        await this.tableRepository.delete(existing.id)
     }
 
     private validateNumber(value: unknown): number {
