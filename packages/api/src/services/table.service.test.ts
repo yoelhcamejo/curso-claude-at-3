@@ -268,4 +268,68 @@ describe('TableService', () => {
             await expect(service.changeStatus('r2', created.id, 'libre')).rejects.toMatchObject({ name: 'TableNotFoundError' })
         })
     })
+
+    describe('listAvailable', () => {
+        beforeEach(async () => {
+            await service.create({ ...validInput, number: 1, capacity: 2 })
+            await service.create({ ...validInput, number: 2, capacity: 6 })
+            await service.create({ ...validInput, number: 3, capacity: 4 })
+            const busy = await service.create({ ...validInput, number: 4, capacity: 8 })
+            await service.changeStatus('r1', busy.id, 'ocupada')
+        })
+
+        it('should return free tables with enough capacity ordered by capacity', async () => {
+            const tables = await service.listAvailable('r1', '3')
+            expect(tables.map(t => t.number)).toEqual([3, 2])
+        })
+
+        it('should accept a positive integer number', async () => {
+            expect((await service.listAvailable('r1', 2)).map(t => t.number)).toEqual([1, 3, 2])
+        })
+
+        it('should return an empty array for a very large number of people', async () => {
+            expect(await service.listAvailable('r1', '99999999999999999999')).toEqual([])
+        })
+
+        it.each(['3.5', '3abc', ' 3 ', '', '0', '-1', '+3', '1e2', undefined, null, ['3'], 3.5, 0])(
+            'should throw InvalidPeopleCountError for %j',
+            async (people) => {
+                await expect(service.listAvailable('r1', people))
+                    .rejects.toMatchObject({ name: 'InvalidPeopleCountError', message: 'People count must be a positive integer' })
+            }
+        )
+    })
+
+    describe('occupy', () => {
+        it('should occupy a free table and return it', async () => {
+            const created = await service.create(validInput)
+
+            const occupied = await service.occupy('r1', created.id)
+
+            expect(occupied).toMatchObject({ id: created.id, status: 'ocupada' })
+            expect((await tableRepo.findById(created.id))?.status).toBe('ocupada')
+        })
+
+        it.each(['ocupada', 'reservada'] as const)('should throw TableNotAvailableError when the table is %s', async (status) => {
+            const created = await service.create(validInput)
+            await service.changeStatus('r1', created.id, status)
+
+            await expect(service.occupy('r1', created.id))
+                .rejects.toMatchObject({ name: 'TableNotAvailableError', message: 'Table is not available' })
+            expect((await tableRepo.findById(created.id))?.status).toBe(status)
+        })
+
+        it('should throw TableNotAvailableError the second time the same table is occupied', async () => {
+            const created = await service.create(validInput)
+            await service.occupy('r1', created.id)
+            await expect(service.occupy('r1', created.id)).rejects.toMatchObject({ name: 'TableNotAvailableError' })
+        })
+
+        it('should throw TableNotFoundError when the table does not exist or is of another restaurant', async () => {
+            const created = await service.create(validInput)
+            await expect(service.occupy('r1', 'missing')).rejects.toMatchObject({ name: 'TableNotFoundError' })
+            await expect(service.occupy('r2', created.id)).rejects.toMatchObject({ name: 'TableNotFoundError' })
+            expect((await tableRepo.findById(created.id))?.status).toBe('libre')
+        })
+    })
 })

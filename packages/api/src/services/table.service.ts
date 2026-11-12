@@ -5,10 +5,12 @@ import type { TableRepository } from '@repositories/table.repository.js'
 import type { RestaurantRepository } from '@repositories/restaurant.repository.js'
 import {
     DuplicatedTableNumberError,
+    InvalidPeopleCountError,
     InvalidTableCapacityError,
     InvalidTableNumberError,
     RestaurantIdRequiredError,
     RestaurantNotFoundError,
+    TableNotAvailableError,
     TableNotFoundError,
     TableOccupiedError
 } from '@errors/DomainErrors.js'
@@ -118,6 +120,28 @@ export class TableService {
 
         await this.tableRepository.save(updated)
         return updated
+    }
+
+    async listAvailable(restaurantId: string, people: unknown): Promise<Table[]> {
+        return this.tableRepository.findAvailable(restaurantId, this.parsePeople(people))
+    }
+
+    async occupy(restaurantId: string, id: string): Promise<Table> {
+        const table = await this.getById(restaurantId, id)
+        if (!await this.tableRepository.occupyIfFree(table.id)) {
+            throw new TableNotAvailableError()
+        }
+        return this.getById(restaurantId, id)
+    }
+
+    private parsePeople(value: unknown): number {
+        if (isPositiveInteger(value)) {
+            return value
+        }
+        if (typeof value === 'string' && /^\d+$/.test(value) && Number(value) >= 1) {
+            return Number(value)
+        }
+        throw new InvalidPeopleCountError()
     }
 
     private validateNumber(value: unknown): number {
