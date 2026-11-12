@@ -31,6 +31,11 @@ export class ShellComponent {
     this.userRole() === 'camarero' || this.userRole() === 'manager'
   )
 
+  // Ven las mesas quien puede atender (camarero, manager) y el cocinero en solo lectura.
+  readonly canSeeMesas = computed(() =>
+    this.userRole() === 'camarero' || this.userRole() === 'manager' || this.userRole() === 'cocinero'
+  )
+
   readonly defaultRoute = computed(() => {
     const role = this.userRole()
     if (role === 'cocinero') return '/cocina'

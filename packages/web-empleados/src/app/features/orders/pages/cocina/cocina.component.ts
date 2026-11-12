@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { AuthStore } from '@resttek/web-shared';
 import { OrderStore } from '../../store/order.store';
+import { TableStore } from '../../../tables/store/table.store';
 
 @Component({
   selector: 'app-cocina',
@@ -11,16 +12,19 @@ import { OrderStore } from '../../store/order.store';
 export class CocinaComponent implements OnInit, OnDestroy {
   private readonly authStore = inject(AuthStore);
   readonly orderStore = inject(OrderStore);
+  readonly tableStore = inject(TableStore);
 
   ngOnInit(): void {
     const restaurantId = this.authStore.user()?.restaurantId;
     if (restaurantId) {
       this.orderStore.startPolling(restaurantId);
+      this.tableStore.startPolling(restaurantId);
     }
   }
 
   ngOnDestroy(): void {
     this.orderStore.stopPolling();
+    this.tableStore.stopPolling();
   }
 
   get pendingAndPreparingOrders() {

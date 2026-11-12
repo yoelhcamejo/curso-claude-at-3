@@ -1,7 +1,7 @@
 <div class="shell">
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <img src="/assets/images/logo.png" alt="RestTek" class="logo-img">
+      <img src="/assets/images/logo.png" alt="RestTek" class="logo-img" />
       <span>RestTek</span>
     </div>
 
@@ -17,7 +17,11 @@
 
       @for (r of restaurantStore.restaurants(); track r.id) {
         <div class="restaurant-group" [class.expanded]="expandedRestaurantId() === r.id">
-          <button class="nav-item restaurant-toggle" [class.active]="expandedRestaurantId() === r.id" (click)="toggleRestaurant(r.id)">
+          <button
+            class="nav-item restaurant-toggle"
+            [class.active]="expandedRestaurantId() === r.id"
+            (click)="toggleRestaurant(r.id)"
+          >
             <lucide-icon name="utensils" [size]="16"></lucide-icon>
             <span class="restaurant-name">{{ r.name }}</span>
             <lucide-icon name="chevron-right" [size]="14" class="chevron"></lucide-icon>
@@ -35,6 +39,10 @@
               <a [routerLink]="['/restaurants', r.id, 'ingredients']" routerLinkActive="active" class="sub-nav-item">
                 <lucide-icon name="package" [size]="14"></lucide-icon>
                 <span>Ingredientes</span>
+              </a>
+              <a [routerLink]="['/restaurants', r.id, 'tables']" routerLinkActive="active" class="sub-nav-item">
+                <lucide-icon name="armchair" [size]="14"></lucide-icon>
+                <span>Mesas</span>
               </a>
               <a [routerLink]="['/restaurants', r.id, 'employees']" routerLinkActive="active" class="sub-nav-item">
                 <lucide-icon name="users" [size]="14"></lucide-icon>
