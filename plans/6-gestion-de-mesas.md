@@ -170,7 +170,7 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 - [x] El seed crea mesas de ejemplo en ambos restaurantes.
 - [x] Hay tests de Vitest del modelo, el repositorio y el servicio de mesas en la API, y del store en `web-admin`, y todos pasan.
 - [x] `docs/dominio/modelo-datos.md`, `docs/dominio/glosario.md` y `docs/arquitectura/arquitectura-api.md` describen las mesas y sus endpoints.
-- [ ] El CI (tipos y tests de la API, builds de los tres frontends, tests de `web-admin` y Prettier) pasa en la PR.
+- [x] El CI (tipos y tests de la API, builds de los tres frontends, tests de `web-admin` y Prettier) pasa en la PR.
 
 ## Dudas y decisiones tomadas
 
