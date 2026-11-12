@@ -47,7 +47,7 @@ Cada tarea debe poder hacerse en 5-10 minutos. Las tareas están agrupadas por a
 - [x] 5. Modificar `seed.ts`: importar `clearDatabase` y llamarlo justo después de `dbConfig.initialize()`, con un `console.log('Database cleared.')`.
 - [x] 6. Simplificar en `seed.ts` la creación del admin y de los empleados: quitar los `findByEmail` y las ramas "already exists", ya que la tabla siempre está vacía.
 - [x] 7. Verificar el seed real: ejecutar `npm run seed` dos veces seguidas, añadiendo antes de la segunda un dato a mano (p. ej. un ingrediente), y comprobar con `sqlite3` o un script que tras la segunda ejecución el dato no existe y los conteos coinciden con la primera (2 restaurantes, 10 empleados, 8 ingredientes, 7 platos, 1 pedido).
-- [ ] 8. Verificación de la API: `npx tsc --noEmit -p tsconfig.json` sin errores y `npm test` en verde.
+- [x] 8. Verificación de la API: `npx tsc --noEmit -p tsconfig.json` sin errores y `npm test` en verde.
 
 ### B. Documentación (raíz del monorepo)
 
