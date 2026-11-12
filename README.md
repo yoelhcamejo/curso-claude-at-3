@@ -43,7 +43,7 @@ La API usa SQLite. Las tablas se crean automáticamente al iniciar el servidor, 
 npm run seed
 ```
 
-Este comando ejecuta el script `packages/api/src/scripts/seed.ts`, que crea restaurantes, empleados, ingredientes, platos y pedidos de ejemplo.
+Este comando ejecuta el script `packages/api/src/scripts/seed.ts`, que **vacía todas las tablas** y vuelve a crear restaurantes, empleados, ingredientes, platos, mesas y pedidos de ejemplo.
 
 ---
 
@@ -110,7 +110,7 @@ Tras ejecutar `npm run seed`, estas credenciales están disponibles. **La contra
 
 Por ejemplo, para entrar como admin: usuario `admin@resttek.com`, contraseña `admin@resttek.com`.
 
-`seed` usa `INSERT OR IGNORE`, así que puedes ejecutarlo varias veces sin duplicar los datos de prueba. Al terminar imprime la lista completa de credenciales por consola.
+`seed` **borra todos los datos de la base de datos local** (`packages/api/resttek.db`) antes de poblarla: cualquier dato que hayas añadido o modificado a mano se pierde. Puedes ejecutarlo varias veces y siempre deja exactamente los mismos datos de prueba. Al terminar imprime la lista completa de credenciales por consola.
 
 ---
 

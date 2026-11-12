@@ -10,7 +10,7 @@ Resttek: plataforma de gestión de restaurantes. Monorepo con **npm workspaces**
 
 ```bash
 npm install            # una sola vez, instala todos los workspaces
-npm run seed           # puebla SQLite (INSERT OR IGNORE, idempotente); imprime credenciales
+npm run seed           # vacía todas las tablas y repuebla SQLite (borra datos manuales); imprime credenciales
 npm run dev:api        # API en :3000 (tsx watch); health: GET /health
 npm run dev:admin      # / dev:empleados / dev:clientes: ng serve con proxy /api -> :3000
 npm test               # solo tests de la API (vitest run)

@@ -3,11 +3,15 @@ import { dbConfig } from '@config/database.js'
 import { BcryptAuthService } from '@employee/infrastructure/BcryptAuthService.js'
 import { SqliteEmployeeRepository } from '@employee/infrastructure/SqliteEmployeeRepository.js'
 import { Employee } from '@employee/domain/Employee.js'
+import { clearDatabase } from './clearDatabase.js'
 
 const seed = async () => {
     try {
         await dbConfig.initialize()
         console.log('Database initialized.')
+
+        await clearDatabase(dbConfig)
+        console.log('Database cleared.')
 
         await dbConfig.run(`
             INSERT OR IGNORE INTO restaurants (id, name, address, email, phone, owner_first_name, owner_last_name, created_at, updated_at)
@@ -24,22 +28,17 @@ const seed = async () => {
         const authService = new BcryptAuthService()
         const employeeRepo = new SqliteEmployeeRepository(dbConfig)
 
-        const admin = await employeeRepo.findByEmail('admin@resttek.com')
-        if (!admin) {
-            const adminEmployee = Employee.create({
-                id: randomUUID(),
-                firstName: 'Admin',
-                lastName: 'RestTek',
-                email: 'admin@resttek.com',
-                passwordHash: await authService.hashPassword('admin@resttek.com'),
-                role: 'admin',
-                restaurantId: null
-            })
-            await employeeRepo.save(adminEmployee)
-            console.log('Admin created: admin@resttek.com / admin@resttek.com')
-        } else {
-            console.log('Admin already exists.')
-        }
+        const adminEmployee = Employee.create({
+            id: randomUUID(),
+            firstName: 'Admin',
+            lastName: 'RestTek',
+            email: 'admin@resttek.com',
+            passwordHash: await authService.hashPassword('admin@resttek.com'),
+            role: 'admin',
+            restaurantId: null
+        })
+        await employeeRepo.save(adminEmployee)
+        console.log('Admin created: admin@resttek.com / admin@resttek.com')
 
         const employees = [
             { firstName: 'Juan', lastName: 'García', email: 'cocinero1@resttek.com', role: 'cocinero', restaurantId: 'rest-1' },
@@ -54,21 +53,17 @@ const seed = async () => {
         ]
 
         for (const emp of employees) {
-            if (!await employeeRepo.findByEmail(emp.email)) {
-                const employee = Employee.create({
-                    id: randomUUID(),
-                    firstName: emp.firstName,
-                    lastName: emp.lastName,
-                    email: emp.email,
-                    passwordHash: await authService.hashPassword(emp.email),
-                    role: emp.role,
-                    restaurantId: emp.restaurantId
-                })
-                await employeeRepo.save(employee)
-                console.log(`${emp.role} created: ${emp.email} / ${emp.email}`)
-            } else {
-                console.log(`${emp.role} already exists: ${emp.email}`)
-            }
+            const employee = Employee.create({
+                id: randomUUID(),
+                firstName: emp.firstName,
+                lastName: emp.lastName,
+                email: emp.email,
+                passwordHash: await authService.hashPassword(emp.email),
+                role: emp.role,
+                restaurantId: emp.restaurantId
+            })
+            await employeeRepo.save(employee)
+            console.log(`${emp.role} created: ${emp.email} / ${emp.email}`)
         }
 
         const ingredientsRest1 = [
