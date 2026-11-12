@@ -6,30 +6,45 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   {
     path: '',
-    loadComponent: () => import('./core/layout/shell.component').then(m => m.ShellComponent),
+    loadComponent: () => import('./core/layout/shell.component').then((m) => m.ShellComponent),
     canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'restaurants', pathMatch: 'full' },
       {
         path: 'restaurants',
-        loadComponent: () => import('./features/restaurants/restaurant-list.component').then(m => m.RestaurantListComponent)
+        loadComponent: () =>
+          import('./features/restaurants/restaurant-list.component').then(
+            (m) => m.RestaurantListComponent,
+          ),
+      },
+      {
+        path: 'restaurants/:id/mesa',
+        loadComponent: () =>
+          import('./features/tables/table-selection.component').then(
+            (m) => m.TableSelectionComponent,
+          ),
       },
       {
         path: 'restaurants/:id',
-        loadComponent: () => import('./features/menu/restaurant-menu.component').then(m => m.RestaurantMenuComponent)
+        loadComponent: () =>
+          import('./features/menu/restaurant-menu.component').then(
+            (m) => m.RestaurantMenuComponent,
+          ),
       },
       {
         path: 'cart',
-        loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent)
+        loadComponent: () => import('./features/cart/cart.component').then((m) => m.CartComponent),
       },
       {
         path: 'orders',
-        loadComponent: () => import('./features/orders/my-orders.component').then(m => m.MyOrdersComponent)
+        loadComponent: () =>
+          import('./features/orders/my-orders.component').then((m) => m.MyOrdersComponent),
       },
       {
         path: 'orders/:id',
-        loadComponent: () => import('./features/orders/order-detail.component').then(m => m.OrderDetailComponent)
-      }
-    ]
-  }
+        loadComponent: () =>
+          import('./features/orders/order-detail.component').then((m) => m.OrderDetailComponent),
+      },
+    ],
+  },
 ];
